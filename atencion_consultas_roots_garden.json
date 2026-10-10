@@ -1,0 +1,1602 @@
+{
+  "name": "Atencion Consultas – Roots Garden",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "maxResults": 5,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "aa115054-0ff9-4ac0-a01e-b292da9a522a",
+      "name": "Nuevo Email Cliente",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X4iHMJqz2QAIBsVQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "60c15161-2514-426e-a36b-f4b0601403cf",
+              "leftValue": "={{ $json.text?.trim() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "028c8a78-980e-4a93-8e13-b5a20d5a8b3e",
+              "leftValue": "={{ $json.from.value[0].address }}",
+              "rightValue": "rootsgarden.consultas@gmail.com",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        384,
+        0
+      ],
+      "id": "ca414e88-9446-4406-8126-82058eaf6265",
+      "name": "Email Valido"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblTu7PFDmxl1qGfL/viwExpHDArdJBm2Gf?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblTu7PFDmxl1qGfL/viwExpHDArdJBm2Gf?blocks=hide",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre": "={{ $json.from.value[0].name || $json.from.value[0].address }}",
+            "Email": "={{ $json.from.value[0].address }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Consultas",
+              "displayName": "Consultas",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        -80
+      ],
+      "id": "7a9a2b93-137b-421b-9fd1-0a6edd86197a",
+      "name": "Guardar Cliente",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Asunto": "={{ $('Nuevo Email Cliente').item.json.subject || '(sin asunto)' }}",
+            "Mensaje": "={{ $('Nuevo Email Cliente').item.json.text }}",
+            "Estado": "Pendiente",
+            "Thread ID": "={{ $('Nuevo Email Cliente').item.json.threadId }}",
+            "Message ID": "={{ $('Nuevo Email Cliente').item.json.id }}",
+            "Cliente": "={{ [ $('Guardar Cliente').item.json.id ] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre (from Cliente)",
+              "displayName": "Nombre (from Cliente)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Venta",
+                  "value": "Venta"
+                },
+                {
+                  "name": "Reclamo",
+                  "value": "Reclamo"
+                },
+                {
+                  "name": "Cuidado Plantas",
+                  "value": "Cuidado Plantas"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread ID",
+              "displayName": "Thread ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ultima Modificacion",
+              "displayName": "Ultima Modificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Registro de errores",
+              "displayName": "Registro de errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        -80
+      ],
+      "id": "42637177-8bc7-4cf5-909b-a5072890980d",
+      "name": "Crear Consulta",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblln6wzj3tVXj3cN/viwXJvFtRXjUrlzdX?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblln6wzj3tVXj3cN/viwXJvFtRXjUrlzdX?blocks=hide",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        -80
+      ],
+      "id": "db8ee0b8-c82f-4ad0-a51e-a59712909563",
+      "name": "Leer Directrices",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1) Une las 8 directrices en un solo texto\nconst texto = $('Leer Directrices').all()\n  .map(item => `## ${item.json.fields['Sección']}\\n${item.json.fields['Contenido']}`)\n  .join('\\n\\n');\n\n// 2) Le agrega ese texto a cada consulta recibida\nreturn $('Crear Consulta').all().map(consulta => ({\n  json: { ...consulta.json, directrices: texto }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        -80
+      ],
+      "id": "49ca0ef6-c2b0-449b-a475-b764bea120f9",
+      "name": "Unir Directrices"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Sos el equipo de atención al cliente de Roots Garden. Tenés que analizar el email de un cliente y preparar un borrador de respuesta, siguiendo estrictamente las directrices de la marca.\n\nDIRECTRICES DE MARCA:\n{{ $json.directrices }}\n\n(Importante: esto es una respuesta por email a un cliente, no un post. Ignorá la sección \"Estructura del post\" y no uses hashtags.)\n\nEMAIL DEL CLIENTE:\nNombre: {{ $json.fields['Nombre (from Cliente)']?.[0] || 'cliente' }}\nAsunto: {{ $json.fields.Asunto }}\nMensaje: {{ $json.fields.Mensaje }}\n\nCÓMO CLASIFICAR:\n- Reclamo: problemas con un pedido, un envío o una planta dañada. Prioridad Alta.\n- Venta: quiere comprar, consulta precios, stock o envíos. Prioridad Media.\n- Cuidado de plantas: dudas sobre cómo cuidar una planta. Prioridad Media o Baja.\n- Otro: cualquier otro tema. Prioridad Baja.\n\nCÓMO RESPONDER:\n- Saludá al cliente por su nombre, con voseo y tono cercano.\n- Máximo 120 palabras.\n- No inventes precios, stock, plazos ni datos que no estén en las directrices. Si falta información, invitá a seguir la conversación por WhatsApp.\n- Firmá como \"Equipo Roots Garden\".\n- No uses formato Markdown (nada de asteriscos ni numerales).\n\nDevolvé únicamente un JSON con este formato exacto:\n{\"categoria\": \"Venta | Reclamo | Cuidado de plantas | Otro\", \"prioridad\": \"Alta | Media | Baja\", \"respuesta\": \"texto de la respuesta\"}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {
+          "maxOutputTokens": 10000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        1312,
+        -80
+      ],
+      "id": "0bb7d03d-e99c-4f5a-aa2e-a65acd6b82aa",
+      "name": "Clasificar y Redactar (Gemini).",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "biqU3vkmMGOnFUNN",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1) Verifica que la IA haya terminado de responder\nconst motivo = $json.finishReason;\nif (motivo !== 'STOP') {\n  throw new Error(`La IA no terminó la respuesta (finishReason: ${motivo})`);\n}\n\n// 2) Convierte el texto de la IA en datos\nconst texto = $json.content?.parts?.[0]?.text;\nlet datos;\ntry {\n  datos = typeof texto === 'string' ? JSON.parse(texto) : texto;\n} catch (e) {\n  throw new Error('La IA devolvió un JSON inválido');\n}\n\n// 3) Revisa que los valores sean válidos\nconst categorias = ['Venta', 'Reclamo', 'Cuidado de plantas', 'Otro'];\nconst prioridades = ['Alta', 'Media', 'Baja'];\nif (!categorias.includes(datos.categoria)) throw new Error(`Categoría inválida: ${datos.categoria}`);\nif (!prioridades.includes(datos.prioridad)) throw new Error(`Prioridad inválida: ${datos.prioridad}`);\nif (!datos.respuesta || datos.respuesta.trim().length < 20) throw new Error('Respuesta vacía o muy corta');\n\n// 4) Devuelve los datos limpios, junto con el id de la consulta\nreturn {\n  json: {\n    consultaId: $('Unir Directrices').item.json.id,\n    categoria: datos.categoria,\n    prioridad: datos.prioridad,\n    respuesta: datos.respuesta.trim()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        -80
+      ],
+      "id": "2f998eea-ed06-4bd5-ba36-835713b5ce14",
+      "name": "Validar Respuesta IA",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Procesado por IA",
+            "Categoria": "={{ $json.categoria }}",
+            "Prioridad": "={{ $json.prioridad }}",
+            "Respuesta IA": "={{ $json.respuesta }}",
+            "id": "={{ $json.consultaId }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Nombre (from Cliente)",
+              "displayName": "Nombre (from Cliente)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Venta",
+                  "value": "Venta"
+                },
+                {
+                  "name": "Reclamo",
+                  "value": "Reclamo"
+                },
+                {
+                  "name": "Cuidado de plantas",
+                  "value": "Cuidado de plantas"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Thread ID",
+              "displayName": "Thread ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ultima Modificacion",
+              "displayName": "Ultima Modificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Registro de errores",
+              "displayName": "Registro de errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1904,
+        -80
+      ],
+      "id": "b149ba8f-08a6-49cd-9307-032656259023",
+      "name": "Guardar Respuesta IA",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "rootsgarden.consultas@gmail.com",
+        "subject": "=🔔 Consulta para revisar: {{ $json.fields.Asunto }} ({{ $json.fields.Categoria }} - Prioridad {{ $json.fields.Prioridad }})",
+        "emailType": "text",
+        "message": "=Hay una nueva consulta con una respuesta preparada por la IA, esperando tu revisión.  \nCLIENTE: {{ $json.fields['Nombre (from Cliente)']?.[0] }} \nASUNTO: {{ $json.fields.Asunto }} \nCATEGORÍA: {{ $json.fields.Categoria }} \nPRIORIDAD: {{ $json.fields.Prioridad }}  \nMENSAJE DEL CLIENTE: {{ $json.fields.Mensaje }}  \nRESPUESTA PROPUESTA POR LA IA: {{ $json.fields['Respuesta IA'] }}  --- \n\nCÓMO APROBAR: \n1. Entrá a Airtable, tabla Consultas: https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide \n2. Revisá la respuesta (podés editarla si hace falta). \n3. Cambiá el Estado a \"Aprobado por Humano\" para enviarla, o a \"Rechazado\" para descartarla.  Nada se envía al cliente hasta que lo apruebes.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2128,
+        -80
+      ],
+      "id": "e46df00a-2bec-470b-aa0a-d7df6a69ad8c",
+      "name": "Aviso HITL (Aprobacion)",
+      "webhookId": "4d6ff9cf-773c-468f-af94-168b9559ae71",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X4iHMJqz2QAIBsVQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tbll4xCGcmdiQzc2F/viwtH5Li5kF3nXz2T?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tbll4xCGcmdiQzc2F/viwtH5Li5kF3nXz2T?blocks=hide",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Descripcion": "=Fallo en {{ $prevNode.name }}: {{ $('Unir Directrices').item.json.fields.Asunto }}",
+            "Consulta": "={{ [ $('Unir Directrices').item.json.id ] }}",
+            "Nodo": "={{ $prevNode.name }}",
+            "Detalle del Error": "={{ $json.error?.message || JSON.stringify($json.error) || 'Error sin detalle' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Descripcion",
+              "displayName": "Descripcion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Consulta",
+              "displayName": "Consulta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nodo",
+              "displayName": "Nodo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Detalle del Error",
+              "displayName": "Detalle del Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        288
+      ],
+      "id": "99646fbc-0cc9-401e-a966-72a5ce46bbd1",
+      "name": "Registrar Error",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Unir Directrices').item.json.id }}",
+            "Estado": "Error"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Nombre (from Cliente)",
+              "displayName": "Nombre (from Cliente)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Venta",
+                  "value": "Venta"
+                },
+                {
+                  "name": "Reclamo",
+                  "value": "Reclamo"
+                },
+                {
+                  "name": "Cuidado Plantas",
+                  "value": "Cuidado Plantas"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Thread ID",
+              "displayName": "Thread ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ultima Modificacion",
+              "displayName": "Ultima Modificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Registro de errores",
+              "displayName": "Registro de errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2368,
+        288
+      ],
+      "id": "7873b95e-db10-40af-8093-cef454394934",
+      "name": "Marcar Consulta con Error",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "authentication": "airtableTokenApi",
+        "baseId": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "tableId": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81?blocks=hide",
+          "mode": "url"
+        },
+        "triggerField": "Ultima Modificacion",
+        "additionalFields": {
+          "formula": "{Estado} = 'Aprobado por Humano'"
+        }
+      },
+      "type": "n8n-nodes-base.airtableTrigger",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        48
+      ],
+      "id": "a0a5e21a-ebe8-4670-ba38-0903c9a8f00e",
+      "name": "Detectar Aprobacion",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $json.fields['Message ID'] }}",
+        "emailType": "text",
+        "message": "={{ $json.fields['Respuesta IA'] }}",
+        "options": {
+          "appendAttribution": false,
+          "replyToSenderOnly": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2624,
+        48
+      ],
+      "id": "3f146549-b4eb-406d-8eb9-50544966da65",
+      "name": "Responder al Cliente (Hilo)",
+      "webhookId": "cb04beea-5978-406a-886b-5b63e705b752",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X4iHMJqz2QAIBsVQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81",
+          "mode": "url",
+          "__regex": "https://airtable.com/([a-zA-Z0-9]{2,})"
+        },
+        "table": {
+          "__rl": true,
+          "value": "https://airtable.com/appFyGcatjW84rmKb/tblH2DkYi9nj6k24A/viw4xZg5LcMN65d81",
+          "mode": "url",
+          "__regex": "https://airtable.com/[a-zA-Z0-9]{2,}/([a-zA-Z0-9]{2,})"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Detectar Aprobacion').item.json.id }}",
+            "Estado": "Enviado"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Asunto",
+              "displayName": "Asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Nombre (from Cliente)",
+              "displayName": "Nombre (from Cliente)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Mensaje",
+              "displayName": "Mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Enviado",
+                  "value": "Enviado"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoria",
+              "displayName": "Categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Venta",
+                  "value": "Venta"
+                },
+                {
+                  "name": "Reclamo",
+                  "value": "Reclamo"
+                },
+                {
+                  "name": "Cuidado Plantas",
+                  "value": "Cuidado Plantas"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Prioridad",
+              "displayName": "Prioridad",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Thread ID",
+              "displayName": "Thread ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message ID",
+              "displayName": "Message ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Ultima Modificacion",
+              "displayName": "Ultima Modificacion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Registro de errores",
+              "displayName": "Registro de errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2912,
+        48
+      ],
+      "id": "8bf9a995-16bf-4bf4-b21c-c36de7e798a7",
+      "name": "Marcar como Enviado",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "EwfQ5gBkOjYQZ7Wi",
+          "name": "Airtable Roots Garden"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Nuevo Email Cliente": {
+      "main": [
+        [
+          {
+            "node": "Email Valido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Valido": {
+      "main": [
+        [
+          {
+            "node": "Guardar Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Cliente": {
+      "main": [
+        [
+          {
+            "node": "Crear Consulta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear Consulta": {
+      "main": [
+        [
+          {
+            "node": "Leer Directrices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer Directrices": {
+      "main": [
+        [
+          {
+            "node": "Unir Directrices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unir Directrices": {
+      "main": [
+        [
+          {
+            "node": "Clasificar y Redactar (Gemini).",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clasificar y Redactar (Gemini).": {
+      "main": [
+        [
+          {
+            "node": "Validar Respuesta IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar Respuesta IA": {
+      "main": [
+        [
+          {
+            "node": "Guardar Respuesta IA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar Respuesta IA": {
+      "main": [
+        [
+          {
+            "node": "Aviso HITL (Aprobacion)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar Error": {
+      "main": [
+        [
+          {
+            "node": "Marcar Consulta con Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detectar Aprobacion": {
+      "main": [
+        [
+          {
+            "node": "Responder al Cliente (Hilo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder al Cliente (Hilo)": {
+      "main": [
+        [
+          {
+            "node": "Marcar como Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1b39e642-4793-4ec4-b1a7-6616761d8974",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "nodeGroups": [],
+  "id": "Jm4b0VoQt1O64s6g",
+  "tags": []
+}
